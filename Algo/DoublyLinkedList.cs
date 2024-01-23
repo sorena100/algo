@@ -27,21 +27,41 @@ public class DoublyLinkedList<T>
 
     #region methodes
 
-    public Node<T> ItemAt(int index)
+    private Node<T> ItemAt(int index)
     {
-        if (index < 0 || index >= Length)
+        if (index < -Length || index >= Length)
         {
             throw new IndexOutOfRangeException();
         }
         
-        Node<T>? node = _head;
-        for (int i = 0; i < index; i++)
+        if (index < 0) index += Length;
+        if (index < Length / 2)
         {
-            if (node == null) throw new NullReferenceException();
-            node = node.Next;
-        }
+            Node<T>? node = _head;
+            for (int i = 0; i < index; i++)
+            {
+                if (node == null) throw new NullReferenceException();
+                node = node.Next;
+            }
 
-        return node ?? throw new NullReferenceException();
+            return node ?? throw new NullReferenceException();
+        }
+        else
+        {
+            Node<T>? node = _tail;
+            for (int i = Length - 1; i > index; i--)
+            {
+                if (node == null) throw new NullReferenceException();
+                node = node.Previous;
+            }
+
+            return node ?? throw new NullReferenceException();
+        }
+    }
+    
+    public T ValueAt(int index)
+    {
+        return ItemAt(index).Value;
     }
 
     public void Push(T value)
