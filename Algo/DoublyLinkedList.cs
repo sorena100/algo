@@ -1,8 +1,6 @@
-using System.Diagnostics;
-
 namespace Algo;
 
-public abstract class DoublyLinkedList<T>
+public class DoublyLinkedList<T>
 {
     public DoublyLinkedList()
     {
@@ -31,7 +29,10 @@ public abstract class DoublyLinkedList<T>
 
     public Node<T> ItemAt(int index)
     {
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Length);
+        if (index < 0 || index >= Length)
+        {
+            throw new IndexOutOfRangeException();
+        }
         
         Node<T>? node = _head;
         for (int i = 0; i < index; i++)
@@ -43,26 +44,53 @@ public abstract class DoublyLinkedList<T>
         return node ?? throw new NullReferenceException();
     }
 
-    public void InsertAt(int index, T value)
+    public void Push(T value)
     {
         Node<T> newNode = new(value);
+        newNode.Next = _head;
+        if (_head != null) _head.Previous = newNode;
+        else _tail = newNode;
+        _head = newNode;
+        Length += 1;
+    }
+
+    public void Append(T value)
+    {
+        Node<T> newNode = new(value);
+        newNode.Previous = _tail;
+        if (_tail != null) _tail.Next = newNode;
+        else _head = newNode;
+        _tail = newNode;
+        Length += 1;
+    }
+
+    private void InsertAfter(Node<T> node, T value)
+    {
+        Node<T> newNode = new(value);
+        newNode.Next = node.Next;
+        newNode.Previous = node;
+        if (node.Next != null) node.Next.Previous = newNode;
+        node.Next = newNode;
+        Length += 1;
+    }
+
+    public void InsertAt(int index, T value)
+    {
+        if (index < 0 || index > Length)
+        {
+            throw new ArgumentOutOfRangeException();
+        }
         if (index == 0)
         {
-            newNode.Next = _head;
-            if (_head != null) _head.Previous = newNode;
-            _head = newNode;
-            Length += 1;
+            Push(value);
             return;
         }
-        
-        Node<T> nodeBefore = ItemAt(index-1);
-        newNode.Next = nodeBefore.Next;
-        newNode.Previous = nodeBefore;
-        if (nodeBefore.Next != null)
+        if (index == Length)
         {
-            nodeBefore.Next.Previous = newNode;
+            Append(value);
+            return;
         }
-        nodeBefore.Next = newNode;
+        InsertAfter(ItemAt(index - 1), value);
     }
 
     #endregion
